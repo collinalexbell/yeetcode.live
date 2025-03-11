@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeetcode - 3D + Monaco</title>
+    <title>Yeetcode - shoot code at things</title>
 
     <!-- Monaco Editor Setup -->
     <script>
@@ -48,17 +48,19 @@
 <body>
 
 	<style>
-#help-text {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	color: white;
-	background: rgba(0, 0, 0, 0.5);
-	padding: 8px 12px;
-	font-family: Arial, sans-serif;
-	font-size: 14px;
-	border-radius: 5px;
-}
+	    #help-text {
+		position: absolute;
+		top: 10px;
+		left: 10px;
+		color: white;
+		background: rgba(0, 0, 0, 0.5);
+		padding: 8px 12px;
+		font-family: Arial, sans-serif;
+		font-size: 14px;
+		border-radius: 5px;
+		user-select: none; /* Prevent text selection */
+		pointer-events: none; /* Ignore mouse clicks */
+	    }
 	</style>
 
     <div id="three-container"></div>  <!-- Three.js Scene -->
