@@ -204,6 +204,16 @@ document.addEventListener('wheel', (event) => {
     }
 }, { passive: false });
 
+document.addEventListener('keydown', (event) => {
+    if (event.key === '.') {
+        // Release pointer lock & focus Monaco editor
+        controls.unlock();
+        window.monacoEditor.focus();
+	event.preventDefault();
+    }
+});
+
+
 camera.position.set(0, 2, 5);
 animate();
 
