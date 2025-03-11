@@ -1,0 +1,22 @@
+{
+  "name": "threejs-server",
+  "version": "1.0.0",
+  "description": "A Node.js server for serving a Three.js context over HTTPS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "https": "^1.0.0",
+    "monaco-editor": "^0.52.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT"
+}
