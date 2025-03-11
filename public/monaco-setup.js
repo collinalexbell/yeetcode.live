@@ -92,5 +92,13 @@ window.onload = function () {
             });
         });
     });
+	document.addEventListener('keydown', (event) => {
+    if (event.key === '.') {
+        // Explicitly focus Monaco editor and allow clicking inside
+        controls.unlock();
+        window.monacoEditor.focus();
+    }
+});
+
 };
 

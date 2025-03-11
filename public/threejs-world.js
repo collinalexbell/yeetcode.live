@@ -1,6 +1,14 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/controls/PointerLockControls.js';
 
+/* scene.js */
+/* controls.js */
+/* mechanics.js */
+/* cube.js */
+/* animation.js */
+
+
+/* scene.js */
 // Scene, Camera, Renderer
 const scene = new THREE.Scene();
 const threeContainer = document.getElementById("three-container");
@@ -13,6 +21,39 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
 threeContainer.appendChild(renderer.domElement);
 
+// Ground Plane
+const groundGeometry = new THREE.PlaneGeometry(50, 50);
+const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+// Add a Cube (Target)
+const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
+const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const box = new THREE.Mesh(boxGeometry, boxMaterial);
+box.position.set(0, 1, -5);
+scene.add(box);
+
+
+// Ensure help text is always on top of Three.js
+const helpText = document.getElementById("help-text");
+helpText.style.zIndex = "100"; // Ensures it stays on top
+
+
+// Window Resize Handling
+window.addEventListener('resize', () => {
+    const newWidth = threeContainer.clientWidth;
+    const newHeight = threeContainer.clientHeight;
+    renderer.setSize(newWidth, newHeight);
+    camera.aspect = newWidth / newHeight;
+    camera.updateProjectionMatrix();
+});
+
+
+
+/* controls.js */
+
 // Pointer Lock Controls (FPS style)
 const controls = new PointerLockControls(camera, document.body);
 document.addEventListener('click', (event) => {
@@ -21,9 +62,6 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Ensure help text is always on top of Three.js
-const helpText = document.getElementById("help-text");
-helpText.style.zIndex = "100"; // Ensures it stays on top
 
 // Player movement
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
@@ -46,19 +84,54 @@ document.addEventListener('keyup', (event) => {
     if (event.code === 'KeyD') moveRight = false;
 });
 
-// Ground Plane
-const groundGeometry = new THREE.PlaneGeometry(50, 50);
-const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
-const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
+document.addEventListener('keydown', (event) => {
+    if (event.key === '.') {
+        // Release pointer lock & focus Monaco editor
+        controls.unlock();
+        window.monacoEditor.focus();
+	event.preventDefault();
+    }
+});
 
-// Add a Cube (Target)
-const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
-const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const box = new THREE.Mesh(boxGeometry, boxMaterial);
-box.position.set(0, 1, -5);
-scene.add(box);
+document.addEventListener('mousedown', (event) => {
+    // Allow clicking inside Monaco only when it's focused
+    if (document.activeElement !== window.monacoEditor.getDomNode()) {
+        if (!event.target.closest("#editor-container")) {
+            controls.lock(); // Regain FPS mode if clicking outside Monaco
+        }
+    }
+});
+
+
+// Handle Mouse Scroll Inside Three.js Context
+document.addEventListener('wheel', (event) => {
+    if (document.activeElement === document.body) { // Ensures it's in Three.js context
+        event.preventDefault(); // Prevents page scrolling
+
+        const scriptSelector = document.getElementById('script-selector');
+        const scriptNames = Array.from(scriptSelector.options).map(option => option.value);
+        let currentIndex = scriptNames.indexOf(scriptSelector.value);
+
+        if (event.deltaY > 0) {
+            // Scroll Down → Next script
+            currentIndex = (currentIndex + 1) % scriptNames.length;
+        } else if (event.deltaY < 0) {
+            // Scroll Up → Previous script
+            currentIndex = (currentIndex - 1 + scriptNames.length) % scriptNames.length;
+        }
+
+        scriptSelector.value = scriptNames[currentIndex];
+
+        // Update Monaco Editor with new script
+        window.monacoEditor.setValue(JSON.parse(localStorage.getItem('scripts'))[scriptSelector.value]);
+    }
+}, { passive: false });
+
+
+
+
+/* mechanics.js */
+
 
 // Bullet Shooting
 const bullets = [];
@@ -97,6 +170,9 @@ function checkCollisions() {
         }
     }
 }
+
+
+/* cube.js */
 
 // Cube Movement Animation
 function moveCube(x, y, z, duration) {
@@ -151,69 +227,4 @@ function animateRotation(speed) {
     setTimeout(() => clearInterval(rotateInterval), 5000);
 }
 
-// Window Resize Handling
-window.addEventListener('resize', () => {
-    const newWidth = threeContainer.clientWidth;
-    const newHeight = threeContainer.clientHeight;
-    renderer.setSize(newWidth, newHeight);
-    camera.aspect = newWidth / newHeight;
-    camera.updateProjectionMatrix();
-});
-
-// Animation Loop
-function animate() {
-    requestAnimationFrame(animate);
-
-    direction.set(0, 0, 0);
-    if (moveForward) direction.z -= 1;
-    if (moveBackward) direction.z += 1;
-    if (moveLeft) direction.x -= 1;
-    if (moveRight) direction.x += 1;
-
-    direction.normalize();
-    direction.applyEuler(camera.rotation);
-    velocity.copy(direction).multiplyScalar(playerSpeed);
-    camera.position.add(velocity);
-
-    checkCollisions();
-    renderer.render(scene, camera);
-}
-
-
-// Handle Mouse Scroll Inside Three.js Context
-document.addEventListener('wheel', (event) => {
-    if (document.activeElement === document.body) { // Ensures it's in Three.js context
-        event.preventDefault(); // Prevents page scrolling
-
-        const scriptSelector = document.getElementById('script-selector');
-        const scriptNames = Array.from(scriptSelector.options).map(option => option.value);
-        let currentIndex = scriptNames.indexOf(scriptSelector.value);
-
-        if (event.deltaY > 0) {
-            // Scroll Down → Next script
-            currentIndex = (currentIndex + 1) % scriptNames.length;
-        } else if (event.deltaY < 0) {
-            // Scroll Up → Previous script
-            currentIndex = (currentIndex - 1 + scriptNames.length) % scriptNames.length;
-        }
-
-        scriptSelector.value = scriptNames[currentIndex];
-
-        // Update Monaco Editor with new script
-        window.monacoEditor.setValue(JSON.parse(localStorage.getItem('scripts'))[scriptSelector.value]);
-    }
-}, { passive: false });
-
-document.addEventListener('keydown', (event) => {
-    if (event.key === '.') {
-        // Release pointer lock & focus Monaco editor
-        controls.unlock();
-        window.monacoEditor.focus();
-	event.preventDefault();
-    }
-});
-
-
-camera.position.set(0, 2, 5);
-animate();
-
+export {scene, moveForward, moveBackward, moveLeft, moveRight, direction, velocity, camera, checkCollisions, renderer, playerSpeed};
