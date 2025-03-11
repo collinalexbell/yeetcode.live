@@ -7,6 +7,10 @@ window.onload = function () {
         const defaultScript = `// Example: Change cube color
 context.changeColor(0x00ff00);
 
+// Example: Move cube
+// x,y,z, duration(millis)
+context.moveCube(0,10,0, 2000);
+
 // Example: Rotate cube
 context.rotateCube(0.05);`;
 

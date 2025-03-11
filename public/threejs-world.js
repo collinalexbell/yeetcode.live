@@ -5,7 +5,6 @@ import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@latest/e
 const scene = new THREE.Scene();
 const threeContainer = document.getElementById("three-container");
 
-// Get exact size of the container
 const width = threeContainer.clientWidth;
 const height = threeContainer.clientHeight;
 
@@ -22,7 +21,7 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Player movement variables
+// Player movement
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 const playerSpeed = 0.1;
 const velocity = new THREE.Vector3();
@@ -50,52 +49,44 @@ const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
-// Add a Box (Target) for code execution
+// Add a Cube (Target)
 const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
 const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 const box = new THREE.Mesh(boxGeometry, boxMaterial);
 box.position.set(0, 1, -5);
 scene.add(box);
 
-// Shooting Orbs (Fixed: Now Move)
+// Bullet Shooting
 const bullets = [];
 document.addEventListener('click', (event) => {
     if (!controls.isLocked || event.target.closest("#editor-container")) return;
 
-    // Create a new orb (bullet)
     const orbGeometry = new THREE.SphereGeometry(0.2, 16, 16);
     const orbMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const orb = new THREE.Mesh(orbGeometry, orbMaterial);
 
-    // Position at the player's location
     orb.position.copy(camera.position);
     scene.add(orb);
 
-    // Calculate direction and velocity
     const shootDirection = new THREE.Vector3();
     camera.getWorldDirection(shootDirection);
-    
     bullets.push({ mesh: orb, velocity: shootDirection.clone().multiplyScalar(0.5) });
 });
 
-// Collision Detection for Cube
+// Collision Detection
 function checkCollisions() {
     for (let i = bullets.length - 1; i >= 0; i--) {
         const bullet = bullets[i];
 
-        // Move bullet forward
         bullet.mesh.position.add(bullet.velocity);
-
-        // Calculate distance to box
         const distance = bullet.mesh.position.distanceTo(box.position);
 
-        if (distance < 1.5) { // Collision threshold
+        if (distance < 1.5) {
             executeCubeScript();
             scene.remove(bullet.mesh);
             bullets.splice(i, 1);
         }
 
-        // Remove bullets after a distance
         if (bullet.mesh.position.length() > 50) {
             scene.remove(bullet.mesh);
             bullets.splice(i, 1);
@@ -103,23 +94,43 @@ function checkCollisions() {
     }
 }
 
+// Cube Movement Animation
+function moveCube(x, y, z, duration) {
+    const startPosition = box.position.clone();
+    const endPosition = startPosition.clone().add(new THREE.Vector3(x, y, z));
+    const startTime = performance.now();
+
+    function animateMove() {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        box.position.lerpVectors(startPosition, endPosition, progress);
+
+        if (progress < 1) {
+            requestAnimationFrame(animateMove);
+        }
+    }
+
+    animateMove();
+}
+
 // Function to execute the script in the Cube's context
 function executeCubeScript() {
     try {
-        // Get the code from Monaco Editor
         const code = window.monacoEditor.getValue();
 
-        // Wrap code execution inside the cube's "context"
         const cubeContext = {
             changeColor: function(color) {
                 box.material.color.set(color);
             },
             rotateCube: function(speed) {
                 animateRotation(speed);
+            },
+            moveCube: function(x, y, z, duration) {
+                moveCube(x, y, z, duration);
             }
         };
 
-        // Use Function constructor for sandboxed execution
         const func = new Function('context', `"use strict";\n${code}`);
         func(cubeContext);
     } catch (err) {
@@ -127,13 +138,13 @@ function executeCubeScript() {
     }
 }
 
-// Cube Rotation Animation Function
+// Cube Rotation Animation
 function animateRotation(speed) {
     const rotateInterval = setInterval(() => {
         box.rotation.y += speed;
     }, 16);
     
-    setTimeout(() => clearInterval(rotateInterval), 5000); // Stops after 5 seconds
+    setTimeout(() => clearInterval(rotateInterval), 5000);
 }
 
 // Window Resize Handling
@@ -149,7 +160,6 @@ window.addEventListener('resize', () => {
 function animate() {
     requestAnimationFrame(animate);
 
-    // FPS Movement
     direction.set(0, 0, 0);
     if (moveForward) direction.z -= 1;
     if (moveBackward) direction.z += 1;
