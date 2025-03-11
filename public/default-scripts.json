@@ -5,7 +5,9 @@
     "green-fast-spinner": "// Example: Change cube color\ncontext.changeColor(0x00ff00);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
     "blue-spinner": "// Example: Change cube color\ncontext.changeColor(0x2210fc);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
     "purple-spinner": "// Example: Change cube color\ncontext.changeColor(0x8442f5);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
-    "move": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, 10, -5, 2000);\n",
     "move-up": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, 10, 0, 2000);\n",
-    "move-down": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, -10, 0, 2000);\n"
+    "move-down": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, -10, 0, 2000);\n",
+    "move-fast-backward": "\ncontext.moveCube(0, 0, 40, 500); // Move in one direction\n       ",
+    "move-backwards-and-forwards": "function sleep(ms) {\n    return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nasync function moveBackAndForth(times) {\n    for (let i = 0; i < times; i++) {\n        let sign = i % 2 === 0 ? -1 : 1;\n\n        await context.moveCube(0, 0, sign * 40, 500); // Move in one direction\n        await sleep(500); // Wait before moving again\n    }\n}\n\nmoveBackAndForth(10);\n\n",
+    "move-circles": "\nfunction sleep(ms) {\n    return new Promise(resolve => setTimeout(resolve, ms));\n}\n\nasync function moveInCircle(radius, speed, loops) {\n    const steps = 36; // More steps = smoother motion\n    for (let loop = 0; loop < loops; loop++) {\n        for (let i = 0; i < steps; i++) {\n            let angle = (i / steps) * Math.PI * 2; // Convert to radians\n            let x = Math.cos(angle) * radius;\n            let z = Math.sin(angle) * radius;\n\n            await context.moveCube(x, 0, z, speed);\n            await sleep(speed); // Small delay between movements\n        }\n    }\n}\n\n// Move in a circle with radius 20, speed 200ms per step, and loop 3 times\nmoveInCircle(20, 200, 3);\n       "
 }
