@@ -3,74 +3,65 @@ window.onload = function () {
         const scriptSelector = document.getElementById('script-selector');
         const newScriptBtn = document.getElementById('new-script-btn');
 
-        // Default script content
-        const defaultScript = `// Example: Change cube color
-context.changeColor(0x00ff00);
+        async function loadDefaultScripts() {
+            try {
+                const response = await fetch('default-scripts.json');
+                const defaultScripts = await response.json();
 
-// Example: Move cube
-// x,y,z, duration(millis)
-context.moveCube(0,10,0, 2000);
+                // Only overwrite local storage if no scripts exist
+                if (!localStorage.getItem('scripts')) {
+                    localStorage.setItem('scripts', JSON.stringify(defaultScripts));
+                }
 
-// Example: Rotate cube
-context.rotateCube(0.05);`;
-
-        // Load scripts from local storage or set default
-        let scripts = JSON.parse(localStorage.getItem('scripts')) || { "default": defaultScript };
-
-        // Function to update script selector dropdown
-        function updateScriptSelector() {
-            scriptSelector.innerHTML = '';
-            Object.keys(scripts).forEach(scriptName => {
-                let option = document.createElement('option');
-                option.value = scriptName;
-                option.textContent = scriptName;
-                scriptSelector.appendChild(option);
-            });
+                return JSON.parse(localStorage.getItem('scripts'));
+            } catch (error) {
+                console.error("Failed to load default scripts:", error);
+                return { "default": "// Default script could not be loaded." };
+            }
         }
 
-        // Create Monaco Editor
-        window.monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
-            value: scripts["default"], // Load default script
-            language: "javascript",
-            theme: "vs-dark"
-        });
+        // Initialize scripts
+        loadDefaultScripts().then(scripts => {
+            function updateScriptSelector() {
+                scriptSelector.innerHTML = '';
+                Object.keys(scripts).forEach(scriptName => {
+                    let option = document.createElement('option');
+                    option.value = scriptName;
+                    option.textContent = scriptName;
+                    scriptSelector.appendChild(option);
+                });
+            }
 
-        // Populate script selector dropdown
-        updateScriptSelector();
+            window.monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
+                value: scripts["default"] || "// No script found.",
+                language: "javascript",
+                theme: "vs-dark"
+            });
 
-        // Handle script selection change
-        scriptSelector.addEventListener('change', function () {
-            const selectedScript = scriptSelector.value;
-            window.monacoEditor.setValue(scripts[selectedScript]);
-        });
-
-        // Handle "New Script" button click
-        newScriptBtn.addEventListener('click', function () {
-            const newScriptName = prompt("Enter new script name:");
-            if (!newScriptName || scripts[newScriptName]) return;
-
-            // Copy current script to new one
-            scripts[newScriptName] = window.monacoEditor.getValue();
-            localStorage.setItem('scripts', JSON.stringify(scripts));
             updateScriptSelector();
 
-            // Select new script
-            scriptSelector.value = newScriptName;
-            window.monacoEditor.setValue(scripts[newScriptName]);
-        });
+            scriptSelector.addEventListener('change', function () {
+                const selectedScript = scriptSelector.value;
+                window.monacoEditor.setValue(scripts[selectedScript]);
+            });
 
-        // Save scripts when editing
-        window.monacoEditor.onDidChangeModelContent(() => {
-            const currentScript = scriptSelector.value;
-            scripts[currentScript] = window.monacoEditor.getValue();
-            localStorage.setItem('scripts', JSON.stringify(scripts));
-        });
+            newScriptBtn.addEventListener('click', function () {
+                const newScriptName = prompt("Enter new script name:");
+                if (!newScriptName || scripts[newScriptName]) return;
 
-        // Save to local storage when switching scripts
-        scriptSelector.addEventListener('change', function () {
-            const previousScript = scriptSelector.value;
-            scripts[previousScript] = window.monacoEditor.getValue();
-            localStorage.setItem('scripts', JSON.stringify(scripts));
+                scripts[newScriptName] = window.monacoEditor.getValue();
+                localStorage.setItem('scripts', JSON.stringify(scripts));
+                updateScriptSelector();
+
+                scriptSelector.value = newScriptName;
+                window.monacoEditor.setValue(scripts[newScriptName]);
+            });
+
+            window.monacoEditor.onDidChangeModelContent(() => {
+                const currentScript = scriptSelector.value;
+                scripts[currentScript] = window.monacoEditor.getValue();
+                localStorage.setItem('scripts', JSON.stringify(scripts));
+            });
         });
     });
 };

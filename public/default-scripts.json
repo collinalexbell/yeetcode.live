@@ -1,0 +1,11 @@
+{
+    "default": "// Example: Change cube color\ncontext.changeColor(0x00ff00);\n\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, 0, -5, 2000);\n\n// Example: Rotate cube\ncontext.rotateCube(0.004);",
+    "red-spinner": "// Example: Change cube color\ncontext.changeColor(0xca533a);\n\n// Example: Rotate cube\ncontext.rotateCube(0.05);",
+    "green-spinner": "// Example: Change cube color\ncontext.changeColor(0x00ff00);\n\n// Example: Rotate cube\ncontext.rotateCube(0.05);",
+    "green-fast-spinner": "// Example: Change cube color\ncontext.changeColor(0x00ff00);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
+    "blue-spinner": "// Example: Change cube color\ncontext.changeColor(0x2210fc);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
+    "purple-spinner": "// Example: Change cube color\ncontext.changeColor(0x8442f5);\n\n// Example: Rotate cube\ncontext.rotateCube(0.55);",
+    "move": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, 10, -5, 2000);\n",
+    "move-up": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, 10, 0, 2000);\n",
+    "move-down": "\n// Move the cube forward over 2 seconds\ncontext.moveCube(0, -10, 0, 2000);\n"
+}
