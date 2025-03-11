@@ -26,16 +26,39 @@
         body { display: flex; height: 100vh; overflow: hidden; }
 
         #three-container { width: 50vw; height: 100vh; background: black; }
-        #editor-container { width: 50vw; height: 100vh; }
+        #editor-container { width: 50vw; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Script selector UI */
+        #script-controls {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #222;
+            color: white;
+        }
+
+        select, button {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        #monaco-editor { flex-grow: 1; }
     </style>
 </head>
 <body>
 
     <div id="three-container"></div>  <!-- Three.js Scene -->
-    <div id="editor-container"></div> <!-- Monaco Editor -->
+    
+    <div id="editor-container">
+        <div id="script-controls">
+            <select id="script-selector"></select>
+            <button id="new-script-btn">New Script</button>
+        </div>
+        <div id="monaco-editor"></div>
+    </div>
 
     <script src="monaco-setup.js"></script>
-    <script type="module" src="threejs-world.js"></script> <!-- Three.js Script -->
+    <script type="module" src="threejs-world.js"></script>
 
 </body>
 </html>
