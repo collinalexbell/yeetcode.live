@@ -21,6 +21,10 @@ document.addEventListener('click', (event) => {
     }
 });
 
+// Ensure help text is always on top of Three.js
+const helpText = document.getElementById("help-text");
+helpText.style.zIndex = "100"; // Ensures it stays on top
+
 // Player movement
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 const playerSpeed = 0.1;
@@ -174,6 +178,31 @@ function animate() {
     checkCollisions();
     renderer.render(scene, camera);
 }
+
+
+// Handle Mouse Scroll Inside Three.js Context
+document.addEventListener('wheel', (event) => {
+    if (document.activeElement === document.body) { // Ensures it's in Three.js context
+        event.preventDefault(); // Prevents page scrolling
+
+        const scriptSelector = document.getElementById('script-selector');
+        const scriptNames = Array.from(scriptSelector.options).map(option => option.value);
+        let currentIndex = scriptNames.indexOf(scriptSelector.value);
+
+        if (event.deltaY > 0) {
+            // Scroll Down → Next script
+            currentIndex = (currentIndex + 1) % scriptNames.length;
+        } else if (event.deltaY < 0) {
+            // Scroll Up → Previous script
+            currentIndex = (currentIndex - 1 + scriptNames.length) % scriptNames.length;
+        }
+
+        scriptSelector.value = scriptNames[currentIndex];
+
+        // Update Monaco Editor with new script
+        window.monacoEditor.setValue(JSON.parse(localStorage.getItem('scripts'))[scriptSelector.value]);
+    }
+}, { passive: false });
 
 camera.position.set(0, 2, 5);
 animate();
